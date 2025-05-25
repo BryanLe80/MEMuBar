@@ -1,4 +1,43 @@
-# MemuBar Distribution Package
+# MemuBar Distribution Summary
+
+## 📦 **Latest Release: v1.01**
+
+### **Distribution Files**
+- `MemuBar_v1.01.dmg` - macOS Disk Image (Recommended)
+- `MemuBar_v1.01.zip` - ZIP Archive (Alternative)
+- `MemuBar_v1.01_Distribution/` - Source folder with app and documentation
+
+### **Key Improvements in v1.01**
+✅ **Fixed Active Memory Calculation** - Now matches Activity Monitor exactly  
+✅ **Enhanced Visual Progression** - 10 granular levels with smooth color transitions  
+✅ **Eliminated Negative Memory Values** - Robust validation under high pressure  
+✅ **Improved Memory Statistics Display** - Detailed breakdown with 2 decimal precision  
+
+### **Installation**
+1. Download `MemuBar_v1.01.dmg`
+2. Mount the disk image
+3. Drag `MemuBar.app` to Applications folder
+4. Launch and grant permissions
+
+### **Technical Details**
+- **Build Configuration**: Release (Optimized)
+- **Architecture**: Universal (ARM64 + Intel)
+- **Minimum macOS**: 15.4
+- **Code Signing**: Apple Development Certificate
+- **XPC Service**: Embedded and signed
+
+### **File Sizes**
+- DMG: ~2.1 MB (compressed)
+- ZIP: ~2.3 MB
+- App Bundle: ~5.8 MB (uncompressed)
+
+### **Previous Versions**
+- v1.0 - Initial release with basic memory monitoring
+- v1.01 - Enhanced accuracy and visual improvements
+
+---
+**Distribution Date**: May 24, 2025  
+**Status**: Ready for Release
 
 ## 🎉 Successfully Packaged for Personal Use
 

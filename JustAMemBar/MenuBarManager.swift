@@ -510,14 +510,29 @@ class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
     
     private func getEnhancedColorForPressure(_ pressureScore: Double) -> NSColor {
         switch pressureScore {
-        case 0..<60:
-            // Green for low pressure (0-59%)
+        case 0..<10:
+            // Bright green for very low pressure (0-9%)
             return NSColor.systemGreen
-        case 60..<80:
-            // Yellow/Orange for medium pressure (60-79%)
+        case 10..<25:
+            // Green for low pressure (10-24%)
+            return NSColor.systemGreen
+        case 25..<40:
+            // Light green for low-medium pressure (25-39%)
+            return NSColor(hue: 120.0/360.0, saturation: 0.6, brightness: 0.8, alpha: 1.0)
+        case 40..<55:
+            // Yellow-green for medium pressure (40-54%)
+            return NSColor(hue: 80.0/360.0, saturation: 0.8, brightness: 0.8, alpha: 1.0)
+        case 55..<70:
+            // Yellow for medium-high pressure (55-69%)
+            return NSColor.systemYellow
+        case 70..<80:
+            // Orange for high pressure (70-79%)
             return NSColor.systemOrange
-        case 80...100:
-            // Red for high pressure (80-100%)
+        case 80..<90:
+            // Red-orange for very high pressure (80-89%)
+            return NSColor(hue: 15.0/360.0, saturation: 0.9, brightness: 0.8, alpha: 1.0)
+        case 90...100:
+            // Bright red for critical pressure (90-100%)
             return NSColor.systemRed
         default:
             return NSColor.controlAccentColor
@@ -547,31 +562,59 @@ class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
         // Clamp percentage to 0-100 range
         let clampedPercentage = max(0, min(100, percentage))
         
-        // Convert to 0-1 range for interpolation
-        let normalizedValue = CGFloat(clampedPercentage / 100.0)
-        
-        // Define green and yellow with higher saturation and brightness for better contrast
-        let greenHue: CGFloat = 120.0 / 360.0  // Green
-        let yellowHue: CGFloat = 60.0 / 360.0  // Yellow
-        let saturation: CGFloat = 0.95  // Higher saturation for better visibility
-        let brightness: CGFloat = 0.95  // Higher brightness for dark menu bar contrast
-        
-        // Interpolate between green and yellow hue
-        let interpolatedHue = greenHue + (yellowHue - greenHue) * normalizedValue
-        
-        return NSColor(hue: interpolatedHue, saturation: saturation, brightness: brightness, alpha: 1.0)
+        // Enhanced smooth gradient with more color stops for better progression
+        switch clampedPercentage {
+        case 0..<5:
+            // Very bright green for minimal usage
+            return NSColor(hue: 120.0/360.0, saturation: 0.8, brightness: 0.95, alpha: 1.0)
+        case 5..<15:
+            // Bright green for low usage
+            return NSColor(hue: 115.0/360.0, saturation: 0.85, brightness: 0.9, alpha: 1.0)
+        case 15..<30:
+            // Green for normal usage
+            return NSColor(hue: 110.0/360.0, saturation: 0.9, brightness: 0.85, alpha: 1.0)
+        case 30..<50:
+            // Yellow-green transition
+            let normalized = CGFloat((clampedPercentage - 30) / 20)  // 0-1 range within this bracket
+            let hue = 110.0/360.0 + (85.0/360.0 - 110.0/360.0) * normalized
+            return NSColor(hue: hue, saturation: 0.9, brightness: 0.85, alpha: 1.0)
+        case 50..<70:
+            // Yellow to orange transition
+            let normalized = CGFloat((clampedPercentage - 50) / 20)
+            let hue = 85.0/360.0 + (45.0/360.0 - 85.0/360.0) * normalized
+            return NSColor(hue: hue, saturation: 0.95, brightness: 0.85, alpha: 1.0)
+        case 70..<85:
+            // Orange transition
+            let normalized = CGFloat((clampedPercentage - 70) / 15)
+            let hue = 45.0/360.0 + (25.0/360.0 - 45.0/360.0) * normalized
+            return NSColor(hue: hue, saturation: 0.95, brightness: 0.85, alpha: 1.0)
+        case 85...100:
+            // Red for high/critical usage
+            return NSColor(hue: 15.0/360.0, saturation: 0.95, brightness: 0.85, alpha: 1.0)
+        default:
+            // Fallback bright green
+            return NSColor(hue: 120.0/360.0, saturation: 0.8, brightness: 0.95, alpha: 1.0)
+        }
     }
     
 
     
     private func getPressureEmoji(_ pressureScore: Double) -> String {
         switch pressureScore {
-        case 0..<60:
-            return "🟢"
-        case 60..<80:
-            return "🟡"
-        case 80...100:
-            return "🔴"
+        case 0..<15:
+            return "🟢"  // Very low pressure
+        case 15..<30:
+            return "🟢"  // Low pressure
+        case 30..<45:
+            return "🟡"  // Low-medium pressure
+        case 45..<60:
+            return "🟡"  // Medium pressure
+        case 60..<75:
+            return "🟠"  // Medium-high pressure
+        case 75..<85:
+            return "🔴"  // High pressure
+        case 85...100:
+            return "🔴"  // Critical pressure
         default:
             return "⚡"
         }
@@ -610,22 +653,48 @@ class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
             height: iconSize.height - (insetAmount * 2)
         )
         
-        // Calculate fill width for the inside area with subtle rounded corners
-        let fillWidth = insideRect.width * CGFloat(max(0, min(100, fillPercentage)) / 100.0)
-        let fillRect = NSRect(
-            x: insideRect.origin.x,
-            y: insideRect.origin.y,
-            width: fillWidth,
-            height: insideRect.height
-        )
+        // Enhanced progressive filling with smoother segments
+        let segmentCount = 10  // More granular segments for smoother progression
+        let segmentWidth = insideRect.width / CGFloat(segmentCount)
+        let segmentsToFill = Int(ceil(fillPercentage / 10.0))  // Number of full segments to fill
         
-        // Get the gradient fill color with better contrast for dark menu bars
-        let fillColor = getContrastAwareGradientColor(fillPercentage)
-        fillColor.setFill()
+        // Draw filled segments with gradient effect
+        for segment in 0..<min(segmentsToFill, segmentCount) {
+            let segmentRect = NSRect(
+                x: insideRect.origin.x + (CGFloat(segment) * segmentWidth),
+                y: insideRect.origin.y,
+                width: segmentWidth - 0.5,  // Small gap between segments
+                height: insideRect.height
+            )
+            
+            // Calculate intensity for this segment (brighter for recent segments)
+            let segmentIntensity = 1.0 - (Double(segmentsToFill - segment - 1) * 0.1)
+            let adjustedPercentage = fillPercentage * segmentIntensity
+            
+            let fillColor = getContrastAwareGradientColor(adjustedPercentage)
+            fillColor.setFill()
+            
+            // Draw segment with subtle rounded corners
+            let segmentPath = NSBezierPath(roundedRect: segmentRect, xRadius: 1.0, yRadius: 1.0)
+            segmentPath.fill()
+        }
         
-        // Draw fill with subtle rounded corners (like Apple's battery indicator)
-        let fillPath = NSBezierPath(roundedRect: fillRect, xRadius: 1.5, yRadius: 1.5)
-        fillPath.fill()
+        // Draw partial fill for the current segment if needed
+        let partialFill = fillPercentage.truncatingRemainder(dividingBy: 10.0)
+        if partialFill > 0 && segmentsToFill < segmentCount {
+            let partialRect = NSRect(
+                x: insideRect.origin.x + (CGFloat(segmentsToFill) * segmentWidth),
+                y: insideRect.origin.y,
+                width: (segmentWidth - 0.5) * CGFloat(partialFill / 10.0),
+                height: insideRect.height
+            )
+            
+            let partialColor = getContrastAwareGradientColor(fillPercentage)
+            partialColor.withAlphaComponent(0.7).setFill()  // Slightly transparent for partial fills
+            
+            let partialPath = NSBezierPath(roundedRect: partialRect, xRadius: 1.0, yRadius: 1.0)
+            partialPath.fill()
+        }
         
         // Draw the memory chip outline with programmatically determined colors
         if let outlineIcon = NSImage(systemSymbolName: "memorychip", accessibilityDescription: "Memory Chip")?.withSymbolConfiguration(symbolConfig) {

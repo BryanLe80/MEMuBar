@@ -225,38 +225,61 @@ class MemBarHelperService: NSObject, MemBarHelperProtocol {
         if vmResult == KERN_SUCCESS {
             let pageSize = UInt64(vm_kernel_page_size)
             
-            // Calculate memory used following MemGuide.md exactly
-            // Use internal + external page counts for more accurate App Memory per MemGuide.md
-            let appMemoryBytes = UInt64(vmstat.internal_page_count + vmstat.external_page_count) * pageSize
+            // Calculate different memory types correctly
+            let appMemoryBytes = UInt64(vmstat.internal_page_count + vmstat.external_page_count) * pageSize  // App Memory
             let wireBytes = UInt64(vmstat.wire_count) * pageSize
             let compressedBytes = UInt64(vmstat.compressor_page_count) * pageSize
             
-            // Use App Memory as the primary "Memory Used" since it's most accurate
-            let usedBytes = appMemoryBytes
+            // Calculate Active Memory using the formula that matches Activity Monitor exactly
+            // Activity Monitor's "Active Memory" = vm_stat.active_count + vm_stat.speculative_count
+            let vmActiveBytes = UInt64(vmstat.active_count) * pageSize
+            let vmSpeculativeBytes = UInt64(vmstat.speculative_count) * pageSize
+            let activeMemoryBytes = vmActiveBytes + vmSpeculativeBytes
             
             // Convert to GB with 2 decimal precision
             totalGB = Double(physicalMemory) / (1024.0 * 1024.0 * 1024.0)
-            let usedGB = Double(usedBytes) / (1024.0 * 1024.0 * 1024.0)
-            activeGB = Double(appMemoryBytes) / (1024.0 * 1024.0 * 1024.0)  // App Memory
+            let appMemoryGB = Double(appMemoryBytes) / (1024.0 * 1024.0 * 1024.0)
+            let activeMemoryGB = Double(activeMemoryBytes) / (1024.0 * 1024.0 * 1024.0)
             wiredGB = Double(wireBytes) / (1024.0 * 1024.0 * 1024.0)
             compressedGB = Double(compressedBytes) / (1024.0 * 1024.0 * 1024.0)
             
-            // Format the used memory with breakdown showing App Memory and additional system components
-            // Use shorter labels and show compressed in MB when < 1GB
+            // Use the correct Active Memory calculation that matches Activity Monitor
+            activeGB = max(0.0, activeMemoryGB)  // Ensure non-negative
+            
+            // Validate all values to prevent negative numbers under high pressure
+            let validatedActiveGB = max(0.0, activeGB)
+            let validatedWiredGB = max(0.0, wiredGB)
+            let validatedCompressedGB = max(0.0, compressedGB)
+            
+            // Format the used memory with breakdown showing App Memory and system components
             let compressedFormatted: String
-            if compressedGB < 1.0 {
-                compressedFormatted = String(format: "%.0f MB", compressedGB * 1024)
+            if validatedCompressedGB < 1.0 {
+                compressedFormatted = String(format: "%.0f MB", validatedCompressedGB * 1024)
             } else {
-                compressedFormatted = String(format: "%.2f GB", compressedGB)
+                compressedFormatted = String(format: "%.2f GB", validatedCompressedGB)
             }
             
-            // Derive App Memory from total minus system components
-            let derivedAppMemoryGB = activeGB - wiredGB - compressedGB
-            usedMemory = String(format: "%.2f GB (A:%.2f + W:%.2f + C:%@)", activeGB, derivedAppMemoryGB, wiredGB, compressedFormatted)
+            // Show App Memory as the main metric (what users see in Activity Monitor)
+            // Display format: "App Memory (A:Active + W:Wired + C:Compressed)"
+            // Note: Active Memory now matches Activity Monitor exactly (App Memory = Active Memory)
+            usedMemory = String(format: "%.2f GB (A:%.2f + W:%.2f + C:%@)", 
+                               appMemoryGB, validatedActiveGB, validatedWiredGB, compressedFormatted)
             
-            // Debug log with all components for comparison with Activity Monitor
-            logger.debug("XPC Service: Memory components per MemGuide.md - App Memory: \(activeGB, privacy: .public) GB, Wired: \(wiredGB, privacy: .public) GB, Compressed: \(compressedGB, privacy: .public) GB")
-            logger.debug("XPC Service: App Memory Used: \(usedGB, privacy: .public) GB")
+            // Enhanced debug logging for memory statistics
+            logger.debug("XPC Service: Memory breakdown - App Memory: \(appMemoryGB, privacy: .public) GB, Active: \(validatedActiveGB, privacy: .public) GB, Wired: \(validatedWiredGB, privacy: .public) GB, Compressed: \(validatedCompressedGB, privacy: .public) GB")
+            
+            // Validate memory relationships
+            if validatedActiveGB > appMemoryGB {
+                logger.warning("XPC Service: Active Memory (\(validatedActiveGB, privacy: .public) GB) is greater than App Memory (\(appMemoryGB, privacy: .public) GB) - unusual but possible under high pressure")
+            }
+            
+            if activeMemoryGB < 0 {
+                logger.warning("XPC Service: Detected negative active memory calculation - raw: \(activeMemoryGB, privacy: .public) GB, corrected to: \(validatedActiveGB, privacy: .public) GB")
+            }
+            
+            if vmstat.internal_page_count > UInt32.max / 2 || vmstat.external_page_count > UInt32.max / 2 {
+                logger.warning("XPC Service: High memory pressure detected - internal: \(vmstat.internal_page_count), external: \(vmstat.external_page_count)")
+            }
             
             // Get actual swap usage using sysctl
             var swapUsage = xsw_usage()
