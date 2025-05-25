@@ -6,12 +6,17 @@
 //
 
 import SwiftUI
+import os.log
 
 @main
 struct JustAMemBarApp: App {
+    @StateObject private var menuBarManager = MenuBarManager()
+    
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        // We don't need a window scene for a menu bar app
+        // The MenuBarManager handles all the UI
+        Settings {
+            EmptyView()
         }
     }
 }

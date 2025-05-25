@@ -1,0 +1,4 @@
+Target dependency graph (2 targets)
+Target 'JustAMemBar' in project 'JustAMemBar'
+➜ Explicit dependency on target 'MemBarHelper' in project 'JustAMemBar'
+Target 'MemBarHelper' in project 'JustAMemBar' (no dependencies)

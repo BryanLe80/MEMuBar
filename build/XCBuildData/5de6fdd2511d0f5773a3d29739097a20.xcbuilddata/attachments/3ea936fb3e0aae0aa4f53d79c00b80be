@@ -1,0 +1,40 @@
+{
+  "" : {
+    "const-values" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/JustAMemBar-master.swiftconstvalues",
+    "dependencies" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/JustAMemBar-master.d",
+    "diagnostics" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/JustAMemBar-master.dia",
+    "emit-module-dependencies" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/JustAMemBar-master-emit-module.d",
+    "emit-module-diagnostics" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/JustAMemBar-master-emit-module.dia",
+    "swift-dependencies" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/JustAMemBar-master.swiftdeps"
+  },
+  "/Users/bryanle/Desktop/Projects/JustAMemBar/JustAMemBar/ContentView.swift" : {
+    "index-unit-output-path" : "/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/ContentView.o"
+  },
+  "/Users/bryanle/Desktop/Projects/JustAMemBar/JustAMemBar/JustAMemBarApp.swift" : {
+    "index-unit-output-path" : "/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/JustAMemBarApp.o",
+    "llvm-bc" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/JustAMemBarApp.bc",
+    "object" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/JustAMemBarApp.o"
+  },
+  "/Users/bryanle/Desktop/Projects/JustAMemBar/JustAMemBar/MemBarHelperProtocol.swift" : {
+    "index-unit-output-path" : "/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/MemBarHelperProtocol.o",
+    "llvm-bc" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/MemBarHelperProtocol.bc",
+    "object" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/MemBarHelperProtocol.o"
+  },
+  "/Users/bryanle/Desktop/Projects/JustAMemBar/JustAMemBar/MemBarXPCClient.swift" : {
+    "index-unit-output-path" : "/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/MemBarXPCClient.o",
+    "llvm-bc" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/MemBarXPCClient.bc",
+    "object" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/MemBarXPCClient.o"
+  },
+  "/Users/bryanle/Desktop/Projects/JustAMemBar/JustAMemBar/MenuBarManager.swift" : {
+    "index-unit-output-path" : "/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/MenuBarManager.o",
+    "llvm-bc" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/MenuBarManager.bc",
+    "object" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/MenuBarManager.o"
+  },
+  "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "index-unit-output-path" : "/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/bryanle/Desktop/Projects/JustAMemBar/build/JustAMemBar.build/Release/JustAMemBar.build/Objects-normal/arm64/GeneratedAssetSymbols.o"
+  }
+}

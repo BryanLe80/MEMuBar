@@ -1,0 +1,341 @@
+//
+//  main.swift
+//  MemBarHelper
+//
+//  Created by Bryan Le on 5/24/25.
+//
+
+import Foundation
+import os.log
+
+// Note: MemBarHelperProtocol is defined in MemBarHelperProtocol.swift 
+// which should be included in both targets
+
+class MemBarHelperService: NSObject, MemBarHelperProtocol {
+    
+    private let logger = Logger(subsystem: "First.MemBarHelper", category: "XPCService")
+    
+    func getMemoryStatistics(reply: @escaping (String, String, String) -> Void) {
+        logger.info("XPC Service: getMemoryStatistics called")
+        
+        // Get actual memory statistics from the system
+        let memoryStats = getSystemMemoryStatistics()
+        
+        logger.info("XPC Service: Returning data - Pressure: \(memoryStats.pressure), Used: \(memoryStats.used), Swap: \(memoryStats.swap)")
+        
+        reply(memoryStats.pressure, memoryStats.used, memoryStats.swap)
+    }
+    
+    func getDetailedMemoryStatistics(reply: @escaping (String, String, String, Double, Double, Double, Double) -> Void) {
+        logger.info("XPC Service: getDetailedMemoryStatistics called")
+        
+        // Get detailed memory statistics from the system
+        let detailedStats = getDetailedSystemMemoryStatistics()
+        
+        logger.info("XPC Service: Returning detailed data - Pressure: \(detailedStats.pressure), Used: \(detailedStats.used), Swap: \(detailedStats.swap)")
+        logger.info("XPC Service: Memory breakdown - Total: \(detailedStats.totalGB), Active: \(detailedStats.activeGB), Wired: \(detailedStats.wiredGB), Compressed: \(detailedStats.compressedGB)")
+        
+        reply(detailedStats.pressure, detailedStats.used, detailedStats.swap, 
+              detailedStats.totalGB, detailedStats.activeGB, detailedStats.wiredGB, detailedStats.compressedGB)
+    }
+    
+    private func getSystemMemoryStatistics() -> (pressure: String, used: String, swap: String) {
+        var memoryPressure = "Unknown"
+        var memoryUsed = "Unknown"
+        var swapUsed = "Unknown"
+        
+        // Get memory pressure
+        memoryPressure = getMemoryPressure()
+        
+        // Get memory usage statistics
+        let memoryInfo = getMemoryInfo()
+        memoryUsed = memoryInfo.used
+        swapUsed = memoryInfo.swap
+        
+        return (pressure: memoryPressure, used: memoryUsed, swap: swapUsed)
+    }
+    
+    private func getDetailedSystemMemoryStatistics() -> (pressure: String, used: String, swap: String, totalGB: Double, activeGB: Double, wiredGB: Double, compressedGB: Double) {
+        var memoryPressure = "Unknown"
+        var memoryUsed = "Unknown"
+        var swapUsed = "Unknown"
+        var totalGB: Double = 0.0
+        var activeGB: Double = 0.0
+        var wiredGB: Double = 0.0
+        var compressedGB: Double = 0.0
+        
+        // Get memory pressure
+        memoryPressure = getMemoryPressure()
+        
+        // Get detailed memory usage statistics
+        let detailedInfo = getDetailedMemoryInfo()
+        memoryUsed = detailedInfo.used
+        swapUsed = detailedInfo.swap
+        totalGB = detailedInfo.totalGB
+        activeGB = detailedInfo.activeGB
+        wiredGB = detailedInfo.wiredGB
+        compressedGB = detailedInfo.compressedGB
+        
+        return (pressure: memoryPressure, used: memoryUsed, swap: swapUsed, 
+                totalGB: totalGB, activeGB: activeGB, wiredGB: wiredGB, compressedGB: compressedGB)
+    }
+    
+    private func getMemoryPressure() -> String {
+        // Use system-wide memory pressure detection
+        var pressureLevel: UInt32 = 0
+        var size = MemoryLayout<UInt32>.size
+        
+        // Try to get kernel memory pressure level
+        if sysctlbyname("kern.memorystatus_vm_pressure_level", &pressureLevel, &size, nil, 0) == 0 {
+            switch pressureLevel {
+            case 1:
+                return "Warning"
+            case 2, 3, 4:
+                return "Critical"
+            default:
+                return "Normal"
+            }
+        }
+        
+        // Fallback: calculate pressure based on memory usage
+        var physicalMemory: UInt64 = 0
+        size = MemoryLayout<UInt64>.size
+        if sysctlbyname("hw.memsize", &physicalMemory, &size, nil, 0) == 0 {
+            var vmstat = vm_statistics64()
+            var vmstatCount = mach_msg_type_number_t(MemoryLayout<vm_statistics64>.size / MemoryLayout<integer_t>.size)
+            
+            let vmResult = withUnsafeMutablePointer(to: &vmstat) {
+                $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
+                    host_statistics64(mach_host_self(), HOST_VM_INFO64, $0, &vmstatCount)
+                }
+            }
+            
+            if vmResult == KERN_SUCCESS {
+                let pageSize = UInt64(vm_kernel_page_size)
+                // Match Activity Monitor calculation per MemGuide.md
+                let activeBytes = UInt64(vmstat.active_count) * pageSize
+                let wireBytes = UInt64(vmstat.wire_count) * pageSize
+                let compressedBytes = UInt64(vmstat.compressor_page_count) * pageSize
+                let usedBytes = activeBytes + wireBytes + compressedBytes
+                
+                let usageRatio = Double(usedBytes) / Double(physicalMemory)
+                
+                if usageRatio > 0.90 {
+                    return "Critical"
+                } else if usageRatio > 0.80 {
+                    return "Warning"
+                } else {
+                    return "Normal"
+                }
+            }
+        }
+        
+        return "Normal" // Default fallback
+    }
+    
+    private func getMemoryInfo() -> (used: String, swap: String) {
+        var usedMemory = "Unknown"
+        var swapMemory = "0 MB"
+        
+        // Get physical memory size
+        var physicalMemory: UInt64 = 0
+        var size = MemoryLayout<UInt64>.size
+        if sysctlbyname("hw.memsize", &physicalMemory, &size, nil, 0) != 0 {
+            return (used: usedMemory, swap: swapMemory)
+        }
+        
+        // Get system-wide VM statistics  
+        var vmstat = vm_statistics64()
+        var vmstatCount = mach_msg_type_number_t(MemoryLayout<vm_statistics64>.size / MemoryLayout<integer_t>.size)
+        
+        let vmResult = withUnsafeMutablePointer(to: &vmstat) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
+                host_statistics64(mach_host_self(), HOST_VM_INFO64, $0, &vmstatCount)
+            }
+        }
+        
+        if vmResult == KERN_SUCCESS {
+            let pageSize = UInt64(vm_kernel_page_size)
+            
+            // Calculate memory used following MemGuide.md exactly
+            // Use internal + external page counts for more accurate App Memory per MemGuide.md
+            let appMemoryBytes = UInt64(vmstat.internal_page_count + vmstat.external_page_count) * pageSize
+            let wireBytes = UInt64(vmstat.wire_count) * pageSize
+            let compressedBytes = UInt64(vmstat.compressor_page_count) * pageSize
+            
+            // Use App Memory as the primary "Memory Used" since it's most accurate
+            let usedBytes = appMemoryBytes
+            
+            // Debug log with all components for comparison with Activity Monitor
+            logger.debug("XPC Service: Memory components per MemGuide.md - App Memory (internal+external): \(Double(appMemoryBytes)/(1024*1024*1024), privacy: .public) GB, Wired: \(Double(wireBytes)/(1024*1024*1024), privacy: .public) GB, Compressed: \(Double(compressedBytes)/(1024*1024*1024), privacy: .public) GB")
+            logger.debug("XPC Service: App Memory Used: \(Double(usedBytes)/(1024*1024*1024), privacy: .public) GB")
+            logger.debug("XPC Service: Component breakdown - Internal: \(Double(UInt64(vmstat.internal_page_count) * pageSize)/(1024*1024*1024), privacy: .public) GB, External: \(Double(UInt64(vmstat.external_page_count) * pageSize)/(1024*1024*1024), privacy: .public) GB, Active: \(Double(UInt64(vmstat.active_count) * pageSize)/(1024*1024*1024), privacy: .public) GB")
+            
+            let totalGB = Double(physicalMemory) / (1024.0 * 1024.0 * 1024.0)
+            let usedGB = Double(usedBytes) / (1024.0 * 1024.0 * 1024.0)
+            
+            usedMemory = String(format: "%.1f GB of %.1f GB", usedGB, totalGB)
+            
+            // Get actual swap usage using sysctl
+            var swapUsage = xsw_usage()
+            var swapSize = MemoryLayout<xsw_usage>.size
+            if sysctlbyname("vm.swapusage", &swapUsage, &swapSize, nil, 0) == 0 {
+                let swapUsedBytes = UInt64(swapUsage.xsu_used)
+                if swapUsedBytes > 0 {
+                    if swapUsedBytes < 1024 * 1024 * 1024 {
+                        swapMemory = String(format: "%.0f MB", Double(swapUsedBytes) / (1024.0 * 1024.0))
+                    } else {
+                        swapMemory = String(format: "%.1f GB", Double(swapUsedBytes) / (1024.0 * 1024.0 * 1024.0))
+                    }
+                } else {
+                    swapMemory = "0 MB"
+                }
+            }
+        }
+        
+        return (used: usedMemory, swap: swapMemory)
+    }
+    
+    private func getDetailedMemoryInfo() -> (used: String, swap: String, totalGB: Double, activeGB: Double, wiredGB: Double, compressedGB: Double) {
+        var usedMemory = "Unknown"
+        var swapMemory = "0 MB"
+        var totalGB: Double = 0.0
+        var activeGB: Double = 0.0
+        var wiredGB: Double = 0.0
+        var compressedGB: Double = 0.0
+        
+        // Get physical memory size
+        var physicalMemory: UInt64 = 0
+        var size = MemoryLayout<UInt64>.size
+        if sysctlbyname("hw.memsize", &physicalMemory, &size, nil, 0) != 0 {
+            return (used: usedMemory, swap: swapMemory, totalGB: totalGB, 
+                    activeGB: activeGB, wiredGB: wiredGB, compressedGB: compressedGB)
+        }
+        
+        // Get system-wide VM statistics  
+        var vmstat = vm_statistics64()
+        var vmstatCount = mach_msg_type_number_t(MemoryLayout<vm_statistics64>.size / MemoryLayout<integer_t>.size)
+        
+        let vmResult = withUnsafeMutablePointer(to: &vmstat) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
+                host_statistics64(mach_host_self(), HOST_VM_INFO64, $0, &vmstatCount)
+            }
+        }
+        
+        if vmResult == KERN_SUCCESS {
+            let pageSize = UInt64(vm_kernel_page_size)
+            
+            // Calculate memory used following MemGuide.md exactly
+            // Use internal + external page counts for more accurate App Memory per MemGuide.md
+            let appMemoryBytes = UInt64(vmstat.internal_page_count + vmstat.external_page_count) * pageSize
+            let wireBytes = UInt64(vmstat.wire_count) * pageSize
+            let compressedBytes = UInt64(vmstat.compressor_page_count) * pageSize
+            
+            // Use App Memory as the primary "Memory Used" since it's most accurate
+            let usedBytes = appMemoryBytes
+            
+            // Convert to GB with 2 decimal precision
+            totalGB = Double(physicalMemory) / (1024.0 * 1024.0 * 1024.0)
+            let usedGB = Double(usedBytes) / (1024.0 * 1024.0 * 1024.0)
+            activeGB = Double(appMemoryBytes) / (1024.0 * 1024.0 * 1024.0)  // App Memory
+            wiredGB = Double(wireBytes) / (1024.0 * 1024.0 * 1024.0)
+            compressedGB = Double(compressedBytes) / (1024.0 * 1024.0 * 1024.0)
+            
+            // Format the used memory with breakdown showing App Memory and additional system components
+            // Use shorter labels and show compressed in MB when < 1GB
+            let compressedFormatted: String
+            if compressedGB < 1.0 {
+                compressedFormatted = String(format: "%.0f MB", compressedGB * 1024)
+            } else {
+                compressedFormatted = String(format: "%.2f GB", compressedGB)
+            }
+            
+            // Derive App Memory from total minus system components
+            let derivedAppMemoryGB = activeGB - wiredGB - compressedGB
+            usedMemory = String(format: "%.2f GB (A:%.2f + W:%.2f + C:%@)", activeGB, derivedAppMemoryGB, wiredGB, compressedFormatted)
+            
+            // Debug log with all components for comparison with Activity Monitor
+            logger.debug("XPC Service: Memory components per MemGuide.md - App Memory: \(activeGB, privacy: .public) GB, Wired: \(wiredGB, privacy: .public) GB, Compressed: \(compressedGB, privacy: .public) GB")
+            logger.debug("XPC Service: App Memory Used: \(usedGB, privacy: .public) GB")
+            
+            // Get actual swap usage using sysctl
+            var swapUsage = xsw_usage()
+            var swapSize = MemoryLayout<xsw_usage>.size
+            if sysctlbyname("vm.swapusage", &swapUsage, &swapSize, nil, 0) == 0 {
+                let swapUsedBytes = UInt64(swapUsage.xsu_used)
+                if swapUsedBytes > 0 {
+                    if swapUsedBytes < 1024 * 1024 * 1024 {
+                        swapMemory = String(format: "%.2f MB", Double(swapUsedBytes) / (1024.0 * 1024.0))
+                    } else {
+                        swapMemory = String(format: "%.2f GB", Double(swapUsedBytes) / (1024.0 * 1024.0 * 1024.0))
+                    }
+                } else {
+                    swapMemory = "0.00 MB"
+                }
+            }
+        }
+        
+        return (used: usedMemory, swap: swapMemory, totalGB: totalGB, 
+                activeGB: activeGB, wiredGB: wiredGB, compressedGB: compressedGB)
+    }
+    
+    private func formatBytes(_ bytes: UInt64) -> String {
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useGB, .useMB]
+        formatter.countStyle = .memory
+        return formatter.string(fromByteCount: Int64(bytes))
+    }
+}
+
+class MemBarHelperServiceDelegate: NSObject, NSXPCListenerDelegate {
+    
+    private let logger = Logger(subsystem: "First.MemBarHelper", category: "XPCDelegate")
+    
+    /// This method is where the NSXPCListener configures, accepts, and resumes a new incoming NSXPCConnection.
+    func listener(_ listener: NSXPCListener, shouldAcceptNewConnection newConnection: NSXPCConnection) -> Bool {
+        
+        logger.info("XPC Service: New connection request received")
+        
+        // Configure the connection.
+        // First, set the interface that the exported object implements.
+        newConnection.exportedInterface = NSXPCInterface(with: MemBarHelperProtocol.self)
+        
+        // Next, set the object that the connection exports. All messages sent on the connection to this service will be sent to the exported object to handle. The connection retains the exported object.
+        let exportedObject = MemBarHelperService()
+        newConnection.exportedObject = exportedObject
+        
+        // Add error handlers
+        newConnection.invalidationHandler = {
+            self.logger.info("XPC Service: Connection invalidated")
+        }
+        
+        newConnection.interruptionHandler = {
+            self.logger.info("XPC Service: Connection interrupted")
+        }
+        
+        // Resuming the connection allows the system to deliver more incoming messages.
+        newConnection.resume()
+        
+        logger.info("XPC Service: Connection accepted and resumed")
+        
+        // Returning true from this method tells the system that you have accepted this connection. If you want to reject the connection for some reason, call invalidate() on the connection and return false.
+        return true
+    }
+}
+
+// MARK: - Main Entry Point
+
+let logger = Logger(subsystem: "First.MemBarHelper", category: "Main")
+logger.info("XPC Service: Starting MemBarHelper service")
+
+let delegate = MemBarHelperServiceDelegate()
+let listener = NSXPCListener.service()
+listener.delegate = delegate
+
+logger.info("XPC Service: Listener configured, resuming...")
+
+// Resuming the serviceListener starts this service. This method does not return.
+listener.resume()
+
+// Keep the service running
+RunLoop.main.run()

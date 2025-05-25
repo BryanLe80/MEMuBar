@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>logFormatVersion</key>
+	<integer>11</integer>
+	<key>logs</key>
+	<dict>
+		<key>BA624DDB-D598-4D84-915C-708A5DD11A74</key>
+		<dict>
+			<key>className</key>
+			<string>IDECommandLineBuildLog</string>
+			<key>documentTypeString</key>
+			<string>&lt;nil&gt;</string>
+			<key>domainType</key>
+			<string>Xcode.IDEActivityLogDomainType.BuildLog</string>
+			<key>fileName</key>
+			<string>BA624DDB-D598-4D84-915C-708A5DD11A74.xcactivitylog</string>
+			<key>hasPrimaryLog</key>
+			<true/>
+			<key>primaryObservable</key>
+			<dict>
+				<key>highLevelStatus</key>
+				<string>S</string>
+				<key>totalNumberOfAnalyzerIssues</key>
+				<integer>0</integer>
+				<key>totalNumberOfErrors</key>
+				<integer>0</integer>
+				<key>totalNumberOfTestFailures</key>
+				<integer>0</integer>
+				<key>totalNumberOfWarnings</key>
+				<integer>0</integer>
+			</dict>
+			<key>schemeIdentifier-containerName</key>
+			<string>JustAMemBar project</string>
+			<key>schemeIdentifier-schemeName</key>
+			<string>JustAMemBar</string>
+			<key>schemeIdentifier-sharedScheme</key>
+			<integer>1</integer>
+			<key>signature</key>
+			<string>Cleaning project JustAMemBar with scheme JustAMemBar and configuration Release</string>
+			<key>timeStartedRecording</key>
+			<real>769829089.61091697</real>
+			<key>timeStoppedRecording</key>
+			<real>769829089.92562902</real>
+			<key>title</key>
+			<string>Cleaning project JustAMemBar with scheme JustAMemBar and configuration Release</string>
+			<key>uniqueIdentifier</key>
+			<string>BA624DDB-D598-4D84-915C-708A5DD11A74</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

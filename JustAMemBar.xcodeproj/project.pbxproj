@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8447E6242DE277F3001F83B1 /* MemBarHelper.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = 8447E6182DE277F3001F83B1 /* MemBarHelper.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		8447E5F62DE2744E001F83B1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,17 +25,77 @@
 			remoteGlobalIDString = 8447E5E62DE2744C001F83B1;
 			remoteInfo = JustAMemBar;
 		};
+		8447E6222DE277F3001F83B1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8447E5DF2DE2744C001F83B1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8447E6172DE277F3001F83B1;
+			remoteInfo = MemBarHelper;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8447E6292DE277F3001F83B1 /* Embed XPC Services */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
+			dstSubfolderSpec = 16;
+			files = (
+				8447E6242DE277F3001F83B1 /* MemBarHelper.xpc in Embed XPC Services */,
+			);
+			name = "Embed XPC Services";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		8447E5E72DE2744C001F83B1 /* JustAMemBar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JustAMemBar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8447E5F52DE2744E001F83B1 /* JustAMemBarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JustAMemBarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8447E5FF2DE2744E001F83B1 /* JustAMemBarUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JustAMemBarUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8447E6182DE277F3001F83B1 /* MemBarHelper.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = MemBarHelper.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8447E6132DE27513001F83B1 /* Exceptions for "JustAMemBar" folder in "JustAMemBar" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8447E5E62DE2744C001F83B1 /* JustAMemBar */;
+		};
+		8447E6282DE277F3001F83B1 /* Exceptions for "MemBarHelper" folder in "MemBarHelper" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8447E6172DE277F3001F83B1 /* MemBarHelper */;
+		};
+		8447E6412DE27CC8001F83B1 /* Exceptions for "JustAMemBar" folder in "MemBarHelper" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ContentView.swift,
+				JustAMemBarApp.swift,
+				MemBarXPCClient.swift,
+				MenuBarManager.swift,
+			);
+			target = 8447E6172DE277F3001F83B1 /* MemBarHelper */;
+		};
+		8447E6432DE27DC9001F83B1 /* Exceptions for "MemBarHelper" folder in "JustAMemBar" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				main.swift,
+			);
+			target = 8447E5E62DE2744C001F83B1 /* JustAMemBar */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8447E5E92DE2744C001F83B1 /* JustAMemBar */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8447E6132DE27513001F83B1 /* Exceptions for "JustAMemBar" folder in "JustAMemBar" target */,
+				8447E6412DE27CC8001F83B1 /* Exceptions for "JustAMemBar" folder in "MemBarHelper" target */,
+			);
 			path = JustAMemBar;
 			sourceTree = "<group>";
 		};
@@ -43,6 +107,15 @@
 		8447E6022DE2744E001F83B1 /* JustAMemBarUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = JustAMemBarUITests;
+			sourceTree = "<group>";
+		};
+		8447E6192DE277F3001F83B1 /* MemBarHelper */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8447E6432DE27DC9001F83B1 /* Exceptions for "MemBarHelper" folder in "JustAMemBar" target */,
+				8447E6282DE277F3001F83B1 /* Exceptions for "MemBarHelper" folder in "MemBarHelper" target */,
+			);
+			path = MemBarHelper;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +142,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8447E6152DE277F3001F83B1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +158,7 @@
 				8447E5E92DE2744C001F83B1 /* JustAMemBar */,
 				8447E5F82DE2744E001F83B1 /* JustAMemBarTests */,
 				8447E6022DE2744E001F83B1 /* JustAMemBarUITests */,
+				8447E6192DE277F3001F83B1 /* MemBarHelper */,
 				8447E5E82DE2744C001F83B1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +169,7 @@
 				8447E5E72DE2744C001F83B1 /* JustAMemBar.app */,
 				8447E5F52DE2744E001F83B1 /* JustAMemBarTests.xctest */,
 				8447E5FF2DE2744E001F83B1 /* JustAMemBarUITests.xctest */,
+				8447E6182DE277F3001F83B1 /* MemBarHelper.xpc */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -102,13 +184,16 @@
 				8447E5E32DE2744C001F83B1 /* Sources */,
 				8447E5E42DE2744C001F83B1 /* Frameworks */,
 				8447E5E52DE2744C001F83B1 /* Resources */,
+				8447E6292DE277F3001F83B1 /* Embed XPC Services */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				8447E6232DE277F3001F83B1 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				8447E5E92DE2744C001F83B1 /* JustAMemBar */,
+				8447E6192DE277F3001F83B1 /* MemBarHelper */,
 			);
 			name = JustAMemBar;
 			packageProductDependencies = (
@@ -163,6 +248,29 @@
 			productReference = 8447E5FF2DE2744E001F83B1 /* JustAMemBarUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		8447E6172DE277F3001F83B1 /* MemBarHelper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8447E6252DE277F3001F83B1 /* Build configuration list for PBXNativeTarget "MemBarHelper" */;
+			buildPhases = (
+				8447E6142DE277F3001F83B1 /* Sources */,
+				8447E6152DE277F3001F83B1 /* Frameworks */,
+				8447E6162DE277F3001F83B1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				8447E5E92DE2744C001F83B1 /* JustAMemBar */,
+				8447E6192DE277F3001F83B1 /* MemBarHelper */,
+			);
+			name = MemBarHelper;
+			packageProductDependencies = (
+			);
+			productName = MemBarHelper;
+			productReference = 8447E6182DE277F3001F83B1 /* MemBarHelper.xpc */;
+			productType = "com.apple.product-type.xpc-service";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +292,9 @@
 						CreatedOnToolsVersion = 16.3;
 						TestTargetID = 8447E5E62DE2744C001F83B1;
 					};
+					8447E6172DE277F3001F83B1 = {
+						CreatedOnToolsVersion = 16.3;
+					};
 				};
 			};
 			buildConfigurationList = 8447E5E22DE2744C001F83B1 /* Build configuration list for PBXProject "JustAMemBar" */;
@@ -203,6 +314,7 @@
 				8447E5E62DE2744C001F83B1 /* JustAMemBar */,
 				8447E5F42DE2744E001F83B1 /* JustAMemBarTests */,
 				8447E5FE2DE2744E001F83B1 /* JustAMemBarUITests */,
+				8447E6172DE277F3001F83B1 /* MemBarHelper */,
 			);
 		};
 /* End PBXProject section */
@@ -223,6 +335,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		8447E5FD2DE2744E001F83B1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		8447E6162DE277F3001F83B1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +372,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8447E6142DE277F3001F83B1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +391,11 @@
 			isa = PBXTargetDependency;
 			target = 8447E5E62DE2744C001F83B1 /* JustAMemBar */;
 			targetProxy = 8447E6002DE2744E001F83B1 /* PBXContainerItemProxy */;
+		};
+		8447E6232DE277F3001F83B1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8447E6172DE277F3001F83B1 /* MemBarHelper */;
+			targetProxy = 8447E6222DE277F3001F83B1 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -397,6 +528,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JustAMemBar/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -436,6 +569,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JustAMemBar/Info.plist;
+				INFOPLIST_KEY_LSUIElement = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -553,6 +688,56 @@
 			};
 			name = Release;
 		};
+		8447E6262DE277F3001F83B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MemBarHelper/MemBarHelper.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7592X763QU;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MemBarHelper/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = First.MemBarHelper;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = First.MemBarHelper;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		8447E6272DE277F3001F83B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = MemBarHelper/MemBarHelper.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 7592X763QU;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MemBarHelper/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = First.MemBarHelper;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				MACOSX_DEPLOYMENT_TARGET = 15.4;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = First.MemBarHelper;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -588,6 +773,15 @@
 			buildConfigurations = (
 				8447E6102DE2744E001F83B1 /* Debug */,
 				8447E6112DE2744E001F83B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8447E6252DE277F3001F83B1 /* Build configuration list for PBXNativeTarget "MemBarHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8447E6262DE277F3001F83B1 /* Debug */,
+				8447E6272DE277F3001F83B1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

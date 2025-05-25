@@ -1,0 +1,9 @@
+version: "Apple Swift version 6.1 (swiftlang-6.1.0.110.21 clang-1700.0.13.3)"
+options: "c6a577c633cb5e9ba71097bd5e0a091eaf65c98abe461a9e466b29c18e01957d"
+build_start_time: [1748136293, 965162000]
+build_end_time: [1748136310, 412517000]
+inputs:
+  "/Users/bryanle/Desktop/Projects/JustAMemBar/JustAMemBar/MemBarHelperProtocol.swift": [1748134740, 21107873]
+  "/Users/bryanle/Desktop/Projects/JustAMemBar/MemBarHelper/main.swift": [1748135962, 166288255]
+  ? "/Users/bryanle/Desktop/Projects/JustAMemBar/build/Build/Intermediates.noindex/JustAMemBar.build/Release/MemBarHelper.build/DerivedSources/GeneratedAssetSymbols.swift"
+  : [1748136291, 865394656]
