@@ -142,6 +142,29 @@ The app provides three key metrics:
 - Xcode 16.0+
 - Swift 5.0+
 
+## Performance Optimizations
+
+JustAMemBar has been carefully optimized for minimal system impact:
+
+### Battery Efficiency
+- **XPC Service Architecture**: System memory monitoring runs in a separate XPC service, allowing the main app to remain lightweight and reducing CPU overhead
+- **On-Demand Updates**: Memory statistics are only fetched when the menu is actively displayed, preventing unnecessary background processing
+- **Efficient System Calls**: Uses optimized `vm_stat64` and `xsw_usage` system calls for minimal CPU impact during data collection
+- **Smart Refresh Strategy**: Updates occur only when needed rather than continuous polling, preserving battery life
+
+### Memory Efficiency  
+- **Minimal Memory Footprint**: The main app maintains a tiny memory footprint by delegating system monitoring to the XPC service
+- **Value Types**: Extensive use of Swift structs and value types to minimize heap allocations
+- **Lazy Loading**: UI components and data structures are loaded only when required
+- **Automatic Memory Management**: Proper use of Swift's ARC and `@StateObject`/`@Published` patterns prevent memory leaks
+
+### System Resource Management
+- **Sandboxed XPC Service**: Isolates system-level operations for better security and stability
+- **Efficient Data Transfer**: Memory statistics are transferred between processes using lightweight data structures
+- **Background Task Optimization**: XPC service automatically manages its lifecycle, starting only when needed
+
+These optimizations ensure MEMuBar provides real-time memory monitoring while maintaining excellent system performance and battery life.
+
 ## License
 
 This project is for educational purposes. 
