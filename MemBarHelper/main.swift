@@ -112,11 +112,20 @@ class MemBarHelperService: NSObject, MemBarHelperProtocol {
             
             if vmResult == KERN_SUCCESS {
                 let pageSize = UInt64(vm_kernel_page_size)
-                // Match Activity Monitor calculation per MemGuide.md
+                // Calculate memory components for pressure calculation
                 let activeBytes = UInt64(vmstat.active_count) * pageSize
+                let inactiveBytes = UInt64(vmstat.inactive_count) * pageSize
+                let speculativeBytes = UInt64(vmstat.speculative_count) * pageSize
                 let wireBytes = UInt64(vmstat.wire_count) * pageSize
                 let compressedBytes = UInt64(vmstat.compressor_page_count) * pageSize
-                let usedBytes = activeBytes + wireBytes + compressedBytes
+                let purgeableBytes = UInt64(vmstat.purgeable_count) * pageSize
+                let externalBytes = UInt64(vmstat.external_page_count) * pageSize
+                
+                // Calculate App Memory: active + inactive + speculative - purgeable - external
+                let appMemoryBytes = activeBytes + inactiveBytes + speculativeBytes - purgeableBytes - externalBytes
+                
+                // Total used = App Memory + Wired + Compressed
+                let usedBytes = appMemoryBytes + wireBytes + compressedBytes
                 
                 let usageRatio = Double(usedBytes) / Double(physicalMemory)
                 
@@ -157,23 +166,31 @@ class MemBarHelperService: NSObject, MemBarHelperProtocol {
         if vmResult == KERN_SUCCESS {
             let pageSize = UInt64(vm_kernel_page_size)
             
-            // Calculate memory used following MemGuide.md exactly
-            // Use internal + external page counts for more accurate App Memory per MemGuide.md
-            let appMemoryBytes = UInt64(vmstat.internal_page_count + vmstat.external_page_count) * pageSize
+            // Calculate memory components
+            let activeBytes = UInt64(vmstat.active_count) * pageSize
+            let inactiveBytes = UInt64(vmstat.inactive_count) * pageSize
+            let speculativeBytes = UInt64(vmstat.speculative_count) * pageSize
             let wireBytes = UInt64(vmstat.wire_count) * pageSize
             let compressedBytes = UInt64(vmstat.compressor_page_count) * pageSize
+            let purgeableBytes = UInt64(vmstat.purgeable_count) * pageSize
+            let externalBytes = UInt64(vmstat.external_page_count) * pageSize
             
-            // Use App Memory as the primary "Memory Used" since it's most accurate
-            let usedBytes = appMemoryBytes
+            // Calculate App Memory using the correct formula:
+            // App Memory = active + inactive + speculative - purgeable - external
+            let appMemoryBytes = activeBytes + inactiveBytes + speculativeBytes - purgeableBytes - externalBytes
+            
+            // Total Memory Used = App Memory + Wired + Compressed
+            let usedBytes = appMemoryBytes + wireBytes + compressedBytes
             
             // Debug log with all components for comparison with Activity Monitor
-            logger.debug("XPC Service: Memory components per MemGuide.md - App Memory (internal+external): \(Double(appMemoryBytes)/(1024*1024*1024), privacy: .public) GB, Wired: \(Double(wireBytes)/(1024*1024*1024), privacy: .public) GB, Compressed: \(Double(compressedBytes)/(1024*1024*1024), privacy: .public) GB")
+            logger.debug("XPC Service: Memory components - App Memory (active+inactive+speculative-purgeable-external): \(Double(appMemoryBytes)/(1024*1024*1024), privacy: .public) GB, Wired: \(Double(wireBytes)/(1024*1024*1024), privacy: .public) GB, Compressed: \(Double(compressedBytes)/(1024*1024*1024), privacy: .public) GB")
             logger.debug("XPC Service: App Memory Used: \(Double(usedBytes)/(1024*1024*1024), privacy: .public) GB")
-            logger.debug("XPC Service: Component breakdown - Internal: \(Double(UInt64(vmstat.internal_page_count) * pageSize)/(1024*1024*1024), privacy: .public) GB, External: \(Double(UInt64(vmstat.external_page_count) * pageSize)/(1024*1024*1024), privacy: .public) GB, Active: \(Double(UInt64(vmstat.active_count) * pageSize)/(1024*1024*1024), privacy: .public) GB")
+            logger.debug("XPC Service: Component breakdown - Active: \(Double(activeBytes)/(1024*1024*1024), privacy: .public) GB, Inactive: \(Double(inactiveBytes)/(1024*1024*1024), privacy: .public) GB, Speculative: \(Double(speculativeBytes)/(1024*1024*1024), privacy: .public) GB, Purgeable: \(Double(purgeableBytes)/(1024*1024*1024), privacy: .public) GB, External: \(Double(externalBytes)/(1024*1024*1024), privacy: .public) GB")
             
             let totalGB = Double(physicalMemory) / (1024.0 * 1024.0 * 1024.0)
             let usedGB = Double(usedBytes) / (1024.0 * 1024.0 * 1024.0)
             
+            // Show total memory used (App + Wired + Compressed) out of physical memory
             usedMemory = String(format: "%.1f GB of %.1f GB", usedGB, totalGB)
             
             // Get actual swap usage using sysctl
@@ -225,16 +242,22 @@ class MemBarHelperService: NSObject, MemBarHelperProtocol {
         if vmResult == KERN_SUCCESS {
             let pageSize = UInt64(vm_kernel_page_size)
             
-            // Calculate different memory types correctly
-            let appMemoryBytes = UInt64(vmstat.internal_page_count + vmstat.external_page_count) * pageSize  // App Memory
+            // Calculate memory components
+            let activeBytes = UInt64(vmstat.active_count) * pageSize
+            let inactiveBytes = UInt64(vmstat.inactive_count) * pageSize
+            let speculativeBytes = UInt64(vmstat.speculative_count) * pageSize
             let wireBytes = UInt64(vmstat.wire_count) * pageSize
             let compressedBytes = UInt64(vmstat.compressor_page_count) * pageSize
+            let purgeableBytes = UInt64(vmstat.purgeable_count) * pageSize
+            let externalBytes = UInt64(vmstat.external_page_count) * pageSize
+            
+            // Calculate App Memory using the correct formula:
+            // App Memory = active + inactive + speculative - purgeable - external
+            let appMemoryBytes = activeBytes + inactiveBytes + speculativeBytes - purgeableBytes - externalBytes
             
             // Calculate Active Memory using the formula that matches Activity Monitor exactly
             // Activity Monitor's "Active Memory" = vm_stat.active_count + vm_stat.speculative_count
-            let vmActiveBytes = UInt64(vmstat.active_count) * pageSize
-            let vmSpeculativeBytes = UInt64(vmstat.speculative_count) * pageSize
-            let activeMemoryBytes = vmActiveBytes + vmSpeculativeBytes
+            let activeMemoryBytes = activeBytes + speculativeBytes
             
             // Convert to GB with 2 decimal precision
             totalGB = Double(physicalMemory) / (1024.0 * 1024.0 * 1024.0)
@@ -259,11 +282,12 @@ class MemBarHelperService: NSObject, MemBarHelperProtocol {
                 compressedFormatted = String(format: "%.2f GB", validatedCompressedGB)
             }
             
-            // Show App Memory as the main metric (what users see in Activity Monitor)
-            // Display format: "App Memory (A:Active + W:Wired + C:Compressed)"
-            // Note: Active Memory now matches Activity Monitor exactly (App Memory = Active Memory)
-            usedMemory = String(format: "%.2f GB (A:%.2f + W:%.2f + C:%@)", 
-                               appMemoryGB, validatedActiveGB, validatedWiredGB, compressedFormatted)
+            // Calculate total memory used: App Memory + Wired + Compressed
+            let totalUsedMemoryGB = appMemoryGB + validatedWiredGB + validatedCompressedGB
+            
+            // Display format: "Total Used (App + Wired + Compressed)"
+            usedMemory = String(format: "%.2f GB (App:%.2f + W:%.2f + C:%@)", 
+                               totalUsedMemoryGB, appMemoryGB, validatedWiredGB, compressedFormatted)
             
             // Enhanced debug logging for memory statistics
             logger.debug("XPC Service: Memory breakdown - App Memory: \(appMemoryGB, privacy: .public) GB, Active: \(validatedActiveGB, privacy: .public) GB, Wired: \(validatedWiredGB, privacy: .public) GB, Compressed: \(validatedCompressedGB, privacy: .public) GB")

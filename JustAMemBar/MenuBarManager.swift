@@ -175,7 +175,7 @@ class MenuBarManager: NSObject, ObservableObject, NSMenuDelegate {
         menu.addItem(pressureItem)
         
         // Memory used - with breakdown
-        let usedItem = createStatItem(label: "Mem Used", value: memoryUsed)
+        let usedItem = createStatItem(label: "Memory Used", value: memoryUsed)
         menu.addItem(usedItem)
         
         // Swap memory - with consistent formatting
